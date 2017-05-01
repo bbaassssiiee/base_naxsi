@@ -1,0 +1,284 @@
+---
+
+- name: Install EPEL repository
+  yum: name=epel-release state=present
+  tags:
+    - nginx
+    - naxsi
+
+- name: Install rpms for Ansible
+  become: yes
+  yum: name={{ item }} state=installed
+  with_items:
+    - python-passlib
+    - libsemanage-python
+  when: ansible_os_family == 'RedHat'
+  tags:
+    - nginx
+    - naxsi
+    - htpasswd
+
+- name: install a couple of rpms
+  yum: name={{ item }} state=present
+  with_items:
+    - rpm-build
+    - gcc
+    - pcre-devel
+    - openssl-devel
+    - lcov
+    - perl-CPAN
+  tags:
+    - nginx
+    - naxsi
+
+- name: Remove Nginx repo
+  yum_repository: name=nginx state=absent
+  retries: 5
+  tags:
+    - nginx
+    - naxsi
+
+- name: download nginx source code
+  get_url: url={{ nginx_url }} dest=/usr/local/src timeout=30
+  tags:
+    - nginx
+    - naxsi
+
+- name: install nginx source code
+  command: rpm -U /usr/local/src/{{ nginx_file }}
+  args:
+    creates: "/root/rpmbuild/SOURCES/nginx-{{ nginx_main_version }}.tar.gz"
+
+  tags:
+    - nginx
+    - naxsi
+    - skip_ansible_lint # not supported by yum module
+
+- name: unpack the nginx source
+  unarchive: copy=no src=/root/rpmbuild/SOURCES/{{ nginx_tar }} dest=/root/rpmbuild/SOURCES
+  tags:
+    - nginx
+    - naxsi
+
+- name: download naxsi source code
+  get_url: url={{ naxsi_url }} dest=/usr/local/src/master.zip timeout=30
+  retries: 5
+  tags:
+    - nginx
+    - naxsi
+
+- name: unpack the naxsi source
+  unarchive: copy=no src=/usr/local/src/master.zip dest=/root/rpmbuild/SOURCES
+  tags:
+    - nginx
+    - naxsi
+
+- name: install custom nginx rpm spec file
+  template: src=nginx.spec dest=/root/rpmbuild/SPECS/nginx.spec owner=root group=root mode=0640
+  tags:
+    - nginx
+    - naxsi
+
+- name: build install custom nginx rpm
+  command: rpmbuild -bb /root/rpmbuild/SPECS/nginx.spec
+  args:
+    creates: /root/rpmbuild/RPMS/x86_64/nginx-{{ nginx_main_version }}-{{ nginx_replace }}.el7.ngx.x86_64.rpm
+  register: nginx_rpm
+  tags:
+    - nginx
+    - naxsi
+
+- name: install the custom nginx rpm
+  command: rpm -U --force /root/rpmbuild/RPMS/x86_64/nginx-{{ nginx_main_version }}-{{ nginx_replace }}.el7.ngx.x86_64.rpm
+  when: nginx_rpm.changed
+  notify: restart nginx
+  tags:
+    - nginx
+    - naxsi
+    - skip_ansible_lint
+
+- name: Copy limits file
+  copy: src=nginx_limits.conf dest=/etc/security/limits.d/nginx_limits.conf
+        owner=root group=root
+  tags:
+    - nginx
+    - naxsi
+
+- name: create workaround dir for nginx tuning
+  file: path=/etc/systemd/system/nginx.service.d state=directory
+  tags:
+    - nginx
+    - naxsi
+
+- name: install workaround override.conf for nginx bug 1581864
+  template: src=override.conf dest=/etc/systemd/system/nginx.service.d/override.conf
+  register: nginx_override
+  notify: restart nginx
+  tags:
+    - nginx
+    - naxsi
+
+- name: reload systemd files
+  command: systemctl daemon-reload
+  when: nginx_override.changed
+  changed_when: yes
+  tags:
+    - nginx
+    - naxsi
+    - skip_ansible_lint
+
+- name: Configure nginx
+  template: src={{ item }} dest=/etc/nginx/{{ item }} owner=root group=root mode=0644
+  with_items:
+    - nginx.conf
+    - naxsi_core.rules
+    - naxsi.rules
+    - naxsi_whitelist.rules
+  notify: reload nginx
+  tags:
+    - nginx
+    - naxsi
+    - naxsi_learning_mode
+
+- name: disable learning_mode
+  become: yes
+  lineinfile:
+    dest: /etc/nginx/naxsi.rules
+    regexp: 'LearningMode;'
+    line: '#LearningMode;'
+  when: not naxsi_learning_mode
+  notify: reload nginx
+  tags:
+    - nginx
+    - naxsi
+    - naxsi_learning_mode
+
+- name: enable learning_mode
+  become: yes
+  lineinfile:
+    dest: /etc/nginx/naxsi.rules
+    regexp: 'LearningMode;'
+    line: 'LearningMode;'
+  when: naxsi_learning_mode
+  notify: reload nginx
+  tags:
+    - nginx
+    - naxsi
+    - naxsi_learning_mode
+
+- name: Enable Nginx service
+  become: yes
+  service: name=nginx enabled=yes
+  tags:
+    - nginx
+    - naxsi
+
+- name: Change default nginx site
+  become: yes
+  template: src=default.conf dest=/etc/nginx/conf.d/default.conf
+  notify: reload nginx
+  when: add_default_site
+  tags:
+    - nginx
+    - naxsi
+    - htpasswd
+    - content_security_policy
+
+- name: Remove default nginx site
+  become: yes
+  file: path=/etc/nginx/conf.d/default.conf state=absent
+  notify: reload nginx
+  when: not add_default_site
+  tags:
+    - nginx
+    - naxsi
+
+- name: Configure logrotation for nginx
+  become: yes
+  template: src=logrotate.conf  dest=/etc/logrotate.d/nginx
+  tags:
+    - logrotate
+    - nginx
+    - naxsi
+
+- name: Create authenticated user in htpasswd
+  htpasswd: path=/etc/nginx/htpasswd
+            username=monitor
+            password="{{ monitoring_password }}"
+            state=present
+            create=yes
+  notify: reload nginx
+  when: monitoring_password is defined
+  tags:
+    - nginx
+    - naxsi
+    - htpasswd
+
+- name: Enable network connect for webserver
+  seboolean: name=httpd_can_network_connect persistent=yes state=yes
+  tags:
+    - nginx
+    - naxsi
+
+- name: Enable webserver to read its certificate on startup
+  seboolean: name=httpd_read_user_content persistent=yes state=yes
+  tags:
+    - nginx
+    - naxsi
+
+- name: ensure firewalld is running
+  service: name=firewalld enabled=yes state=started
+  when: client_subnet is defined
+  tags:
+    - firewall
+    - nginx
+    - naxsi
+
+- name: Grant web access for varnish
+  firewalld: rich_rule='rule family="ipv4" source address="{{ client_subnet }}" port port="80" protocol="tcp" accept' permanent=true state=enabled immediate=yes
+  when: client_subnet is defined
+  tags:
+    - firewall
+    - nginx
+    - naxsi
+
+- name: Check nginx configuration
+  command: "nginx -t"
+  register: result
+  changed_when: "result.rc != 0"
+  tags:
+    - nginx
+    - naxsi
+
+- name: Ensure Nginx is started
+  become: yes
+  service: name=nginx state=started
+  tags:
+    - nginx
+    - naxsi
+
+- name: Test Nginx listening socket
+  wait_for: host=localhost port={{ nginx.port }} timeout=5
+  ignore_errors: "{{ continue_on_error | default(True) }}"
+  tags:
+    - nginx
+    - naxsi
+    - test
+
+- name: Test home page
+  become: no
+  local_action: uri url="https://{{ nginx.servername }}"
+                follow_redirects=all
+                method=GET
+                return_content=no
+                timeout=10
+                validate_certs=no
+  ignore_errors: "{{ continue_on_error | default(True) }}"
+  register: homepage
+  retries: 3
+  no_log: no
+  tags:
+    - nginx
+    - naxsi
+    - homepage
+    - test

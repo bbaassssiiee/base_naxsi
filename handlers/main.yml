@@ -1,0 +1,30 @@
+---
+- name: restart nginx
+  debug: msg="checking config first"
+  changed_when: True
+  notify:
+    - check nginx configuration
+    - logrotate nginx
+    - restart nginx - after config check
+
+- name: reload nginx
+  debug: msg="checking config first"
+  changed_when: True
+  notify:
+    - check nginx configuration
+    - logrotate nginx
+    - reload nginx - after config check
+
+- name: check nginx configuration
+  command: "nginx -t"
+  register: result
+  changed_when: "result.rc != 0"
+
+- name: restart nginx - after config check
+  service: name=nginx state=restarted
+
+- name: reload nginx - after config check
+  service: name=nginx state=reloaded
+
+- name: logrotate nginx
+  command: logrotate -f /etc/logrotate.d/nginx

@@ -1,0 +1,25 @@
+---
+
+add_default_site: True
+fastcgi_read_timeout: "60"
+nginx:
+    port: 80
+
+nginx_main_version: 1.12.0
+nginx_release: 1
+nginx_replace: 3 # increment the nginx_release to allow an update with naxsi
+
+# derived vars
+nginx_tar: nginx-{{ nginx_main_version }}.tar.gz
+nginx_file: nginx-{{ nginx_main_version }}-{{ nginx_release }}.el7.ngx.src.rpm
+nginx_url: http://nginx.org/packages/centos/7/SRPMS/{{ nginx_file }}
+naxsi_url: https://github.com/nbs-system/naxsi/archive/master.zip
+
+nginx_error_log: /var/log/nginx/error.log warn;
+nginx_access_log: /var/log/nginx/access.log  main;
+
+# Selected servers are logged remotely using group_vars
+# nginx_error_log: "syslog:server={{ graylog_server }}:12302;"
+# nginx_access_log: "syslog:server={{ graylog_server }}:12301 graylog2_format;"
+
+naxsi_learning_mode: true
