@@ -16,5 +16,5 @@ galaxy_info:
     - container
 
 dependencies:
-  - base_epel
-  - base_cplusplus
+  - bbbaassssiiee.base_epel
+  - bbbaassssiiee.base_cplusplus
