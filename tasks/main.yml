@@ -1,11 +1,5 @@
 ---
 
-- name: Install EPEL repository
-  yum: name=epel-release state=present
-  tags:
-    - nginx
-    - naxsi
-
 - name: Install rpms for Ansible
   become: yes
   yum: name={{ item }} state=installed
@@ -22,7 +16,6 @@
   yum: name={{ item }} state=present
   with_items:
     - rpm-build
-    - gcc
     - pcre-devel
     - openssl-devel
     - lcov
