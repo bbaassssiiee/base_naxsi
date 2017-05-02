@@ -14,10 +14,10 @@
 - name: install a couple of rpms
   yum: name={{ item }} state=present
   with_items:
-    - make
+    - openssl
+    - openssl-devel
     - rpm-build
     - pcre-devel
-    - openssl-devel
     - lcov
     - perl-CPAN
   tags:
