@@ -161,7 +161,7 @@
     - naxsi
     - naxsi_learning_mode
 
-- name: Download dumb=init
+- name: Download dumb-init
   when: ansible_connection == 'docker'
   get_url:
     url: https://github.com/Yelp/dumb-init/releases/download/v1.2.0/dumb-init_1.2.0_amd64
@@ -221,17 +221,76 @@
     - htpasswd
 
 - name: Enable network connect for webserver
-  seboolean: name=httpd_can_network_connect persistent=yes state=yes
   when: ansible_selinux.status == "enabled"
+  seboolean:
+    name: httpd_can_network_connect
+    persistent: yes
+    state: yes
   tags:
     - nginx
     - naxsi
     - naxsi_selinux
 
 - name: Enable webserver to read its certificate on startup
-  seboolean: name=httpd_read_user_content persistent=yes state=yes
   when: ansible_selinux.status == "enabled"
+  seboolean:
+    name: httpd_read_user_content
+    persistent: yes
+    state: yes
   tags:
+    - nginx
+    - naxsi
+  tags:
+    - nginx
+    - naxsi
+
+- name: fix permissions in docroot
+  when: ansible_selinux.status == "enabled"
+  file:
+    dest: "{{ nginx.docroot }}"
+    owner: nginx
+    recurse: yes
+  tags:
+    - nginx
+    - naxsi
+
+- name: fix permissions in docroot
+  when: ansible_selinux.status == "enabled"
+  file:
+    dest: "{{ item }}"
+    owner: nginx
+    recurse: yes
+  with_items:
+    - "{{ nginx.docroot }}"
+    - "/var/log/nginx"
+  tags:
+    - nginx
+    - naxsi
+
+- name: fix permissions on pid filet
+  when: ansible_selinux.status == "enabled"
+  file:
+    dest: "{{ item }}"
+    owner: nginx
+    state: touch
+  with_items:
+    - "/var/run/nginx.pid"
+  tags:
+    - nginx
+    - naxsi
+
+- name: persist selinux for files
+  command: "restorecon -R {{ nginx.docroot }}"
+  changed_when: yes
+  tags:
+    - nginx
+    - naxsi
+
+- name: fix selinux in cache_dir
+  when: ansible_selinux.status == "enabled"
+  shell: semanage fcontext -a -t httpd_sys_rw_content_t "/var/cache/nginx(/.*)?"
+  tags:
+    - skip_ansible_lint
     - nginx
     - naxsi
 
