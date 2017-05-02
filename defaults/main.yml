@@ -1,32 +1,35 @@
 ---
 
-add_default_site: True
-fastcgi_read_timeout: "60"
-nginx:
-    port: 80
-
+# compile time options
 nginx_main_version: 1.12.0
 nginx_release: 1
 nginx_replace: 3 # increment the nginx_release to allow an update with naxsi
+
+naxsi_learning_mode: true
+
+add_default_site: True
+# define the tree
+nginx:
+    install: '1'
+    docroot: /var/www/html
+    appname: app.php
+    servername: localhost
+    port: 80
+
+nginx_error_log: /var/log/nginx/error.log warn;
+nginx_access_log: /var/log/nginx/access.log  main;
+
+fastcgi_read_timeout: "60"
+
+# number of megabytes
+client_max_body_size: 5
+upload_max_filesize: 2
+# time units
+client_body_timeout: 5m
+client_header_timeout: 30s
 
 # derived vars
 nginx_tar: nginx-{{ nginx_main_version }}.tar.gz
 nginx_file: nginx-{{ nginx_main_version }}-{{ nginx_release }}.el7.ngx.src.rpm
 nginx_url: http://nginx.org/packages/centos/7/SRPMS/{{ nginx_file }}
 naxsi_url: https://github.com/nbs-system/naxsi/archive/master.zip
-
-nginx_error_log: /var/log/nginx/error.log warn;
-nginx_access_log: /var/log/nginx/access.log  main;
-
-# Selected servers are logged remotely using group_vars
-# nginx_error_log: "syslog:server={{ graylog_server }}:12302;"
-# nginx_access_log: "syslog:server={{ graylog_server }}:12301 graylog2_format;"
-
-naxsi_learning_mode: true
-
-client_max_body_size: 5
-# number of megabytes
-upload_max_filesize: 2
-# number of megabytes
-client_body_timeout: 5m
-client_header_timeout: 30s
