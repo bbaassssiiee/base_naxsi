@@ -205,6 +205,7 @@
 
 - name: Enable network connect for webserver
   seboolean: name=httpd_can_network_connect persistent=yes state=yes
+  when: ansible_selinux.status == 'enabled'
   tags:
     - nginx
     - naxsi
