@@ -1,5 +1,5 @@
 nginx:
-  image:  openshift:base-centos7
+  image:  centos:7
   user: "nginx"
   ports:
     - "8080"
