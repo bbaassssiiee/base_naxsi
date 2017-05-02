@@ -309,7 +309,6 @@
     - naxsi
     - test
 
-- name
 - name: Test home page
   become: no
   when: ansible_connection != 'docker'
