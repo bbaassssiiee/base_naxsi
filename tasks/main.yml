@@ -286,6 +286,7 @@
     - naxsi
 
 - name: Check nginx configuration
+  when: ansible_connection != 'docker'
   command: "nginx -t"
   register: result
   changed_when: "result.rc != 0"
