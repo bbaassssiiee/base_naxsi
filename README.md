@@ -26,12 +26,13 @@ Example Usage
 
 \#!/usr/bin/env ansible-playbook
 
-- name: example playbook
+- name: example\ playbook
   hosts: all
   become: yes
 
   roles:
-    - { role: base_naxsi, tags: 'naxsi' }
+    - { role: bbaassssiiee.base_naxsi, tags: 'naxsi' }
+
 
 License
 -------
