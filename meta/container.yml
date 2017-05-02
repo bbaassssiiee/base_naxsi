@@ -1,0 +1,9 @@
+nginx:
+  image:  centos7:latest
+  user: "nginx"
+  ports:
+    - "8080"
+  command: ['/usr/local/bin/dumb-init', 'nginx', '-c', '/etc/nginx/nginx.conf', "-g", "daemon off;"]
+  dev_overrides:
+    ports: []
+    command: 'bin/false'
