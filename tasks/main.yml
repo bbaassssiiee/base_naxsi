@@ -205,10 +205,11 @@
 
 - name: Enable network connect for webserver
   seboolean: name=httpd_can_network_connect persistent=yes state=yes
-  when: ansible_selinux.status == 'enabled'
+  when: ansible_selinux.status == "enabled"
   tags:
     - nginx
     - naxsi
+    - naxsi_selinux
 
 - name: Enable webserver to read its certificate on startup
   seboolean: name=httpd_read_user_content persistent=yes state=yes
