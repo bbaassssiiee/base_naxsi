@@ -1,5 +1,6 @@
 ---
 - name: restart nginx
+  when: ansible_connection != 'docker'
   debug: msg="checking config first"
   changed_when: True
   notify:
@@ -21,10 +22,13 @@
   changed_when: "result.rc != 0"
 
 - name: restart nginx - after config check
+  when: ansible_connection != 'docker'
   service: name=nginx state=restarted
 
 - name: reload nginx - after config check
+  when: ansible_connection != 'docker'
   service: name=nginx state=reloaded
 
 - name: logrotate nginx
+  when: ansible_connection != 'docker'
   command: logrotate -f /etc/logrotate.d/nginx

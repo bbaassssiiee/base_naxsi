@@ -113,7 +113,7 @@
 
 - name: reload systemd files
   command: systemctl daemon-reload
-  when: nginx_override.changed
+  when: ansible_connection != 'docker' and nginx_override.changed
   changed_when: yes
   tags:
     - nginx
@@ -159,6 +159,7 @@
 
 - name: Enable Nginx service
   service: name=nginx enabled=yes
+  when: ansible_connection != 'docker'
   tags:
     - nginx
     - naxsi
@@ -183,6 +184,7 @@
 
 - name: Configure logrotation for nginx
   template: src=logrotate.conf  dest=/etc/logrotate.d/nginx
+  when: ansible_connection != 'docker'
   tags:
     - logrotate
     - nginx
@@ -215,7 +217,7 @@
 
 - name: ensure firewalld is running
   service: name=firewalld enabled=yes state=started
-  when: client_subnet is defined
+  when: ansible_connection != 'docker' and client_subnet is defined
   tags:
     - firewall
     - nginx
@@ -223,7 +225,7 @@
 
 - name: Grant web access for varnish
   firewalld: rich_rule='rule family="ipv4" source address="{{ client_subnet }}" port port="80" protocol="tcp" accept' permanent=true state=enabled immediate=yes
-  when: client_subnet is defined
+  when: ansible_connection != 'docker' and client_subnet is defined
   tags:
     - firewall
     - nginx
@@ -239,6 +241,7 @@
 
 - name: Ensure Nginx is started
   service: name=nginx state=started
+  when: ansible_connection != 'docker'
   tags:
     - nginx
     - naxsi
@@ -246,6 +249,7 @@
 - name: Test Nginx listening socket
   wait_for: host=localhost port={{ nginx.port }} timeout=5
   ignore_errors: "{{ continue_on_error | default(True) }}"
+  when: ansible_connection != 'docker'
   tags:
     - nginx
     - naxsi
@@ -253,6 +257,7 @@
 
 - name: Test home page
   become: no
+  when: ansible_connection != 'docker'
   local_action: uri url="https://{{ nginx.servername }}"
                 follow_redirects=all
                 method=GET
