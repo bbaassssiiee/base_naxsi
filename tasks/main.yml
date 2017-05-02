@@ -26,6 +26,9 @@
     - nginx
     - naxsi
 
+- name: Reload ansible_facts after installing libselinux-python
+  setup:
+
 - name: Remove Nginx repo
   yum_repository: name=nginx state=absent
   retries: 5
