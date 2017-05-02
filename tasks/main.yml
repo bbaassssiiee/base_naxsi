@@ -14,7 +14,6 @@
 - name: install a couple of rpms
   yum: name={{ item }} state=present
   with_items:
-    - core-utils
     - rpm-build
     - pcre-devel
     - openssl-devel
