@@ -213,6 +213,7 @@
 
 - name: Enable webserver to read its certificate on startup
   seboolean: name=httpd_read_user_content persistent=yes state=yes
+  when: ansible_selinux.status == "enabled"
   tags:
     - nginx
     - naxsi
