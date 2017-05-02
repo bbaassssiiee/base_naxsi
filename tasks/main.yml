@@ -14,6 +14,7 @@
 - name: install a couple of rpms
   yum: name={{ item }} state=present
   with_items:
+    - core-utils
     - rpm-build
     - pcre-devel
     - openssl-devel
@@ -72,7 +73,7 @@
     - naxsi
 
 - name: build install custom nginx rpm
-  command: rpmbuild -bb /root/rpmbuild/SPECS/nginx.spec
+  command: rpmbuild -v -bb /root/rpmbuild/SPECS/nginx.spec
   args:
     creates: /root/rpmbuild/RPMS/x86_64/nginx-{{ nginx_main_version }}-{{ nginx_replace }}.el7.ngx.x86_64.rpm
   register: nginx_rpm
@@ -81,7 +82,7 @@
     - naxsi
 
 - name: install the custom nginx rpm
-  command: rpm -U --force /root/rpmbuild/RPMS/x86_64/nginx-{{ nginx_main_version }}-{{ nginx_replace }}.el7.ngx.x86_64.rpm
+  command: rpm -v -U --force /root/rpmbuild/RPMS/x86_64/nginx-{{ nginx_main_version }}-{{ nginx_replace }}.el7.ngx.x86_64.rpm
   when: nginx_rpm.changed
   notify: restart nginx
   tags:
