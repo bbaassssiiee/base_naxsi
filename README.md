@@ -10,9 +10,9 @@ RHEL-like, rpm-build, gcc.
 
 Role Variables
 --------------
-- nginx_main_version: 1.12.0
-- nginx_release: 1 # the number after the dash (-)
-- nginx_replace: 3 # increment the nginx_release to allow an update with naxsi
+- nginx\_main_version: 1.12.0
+- nginx\_release: 1 # the number after the dash (-)
+- nginx\_replace: 3 # increment the nginx_release to allow an update with naxsi
 
 
 
@@ -24,14 +24,28 @@ none
 Example Usage
 ----------------
 
+
 \#!/usr/bin/env ansible-playbook
 
-- name: example\ playbook
+\- name: example\ playbook
+
   hosts: all
+
   become: yes
 
   roles:
+
     - { role: bbaassssiiee.base_naxsi, tags: 'naxsi' }
+
+Debug under ansible-container
+-----------------------------
+rm -rf ansible
+
+ansible-container init
+
+ansible-container --debug install bbaassssiiee.base_naxsi
+
+ansible-container --debug build
 
 
 License
