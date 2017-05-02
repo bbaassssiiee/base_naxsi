@@ -14,6 +14,7 @@
 - name: install a couple of rpms
   yum: name={{ item }} state=present
   with_items:
+    - python-pip
     - libsemanage-python
     - policycoreutils-python
     - openssl
@@ -160,6 +161,51 @@
     - naxsi
     - naxsi_learning_mode
 
+- name: Download dumb=init
+  get_url:
+    url: https://github.com/Yelp/dumb-init/releases/download/v1.2.0/dumb-init_1.2.0_amd64
+    dest: '/usr/local/bin/dumb-init'
+    mode: 0755
+
+- name: Cleanup build tools
+  yum: name={{ item }} state=absent
+  with_items:
+    - autoconf
+    - automake
+    - binutils-devel
+    - binutils-static
+    - bison
+    - boost-devel
+    - clang
+    - cmake
+    - elfutils-devel
+    - elfutils-libelf-devel
+    - file-devel
+    - gcc
+    - gcc-c++
+    - kernel-devel
+    - lcov
+    - libsemanage-python
+    - libstdc++-devel
+    - libstdc++-static
+    - libtool
+    - ncurses-devel
+    - openssl
+    - openssl-devel
+    - pcre-devel
+    - perl-CPAN
+    - policycoreutils-python
+    - rpm-build
+  tags:
+    - nginx
+    - naxsi
+
+- name: clean yum cache
+  command: yum clean all
+  tags:
+    - nginx
+    - naxsi
+
 - name: Enable Nginx service
   service: name=nginx enabled=yes
   when: ansible_connection != 'docker'
@@ -261,6 +307,7 @@
     - naxsi
     - test
 
+- name
 - name: Test home page
   become: no
   when: ansible_connection != 'docker'
