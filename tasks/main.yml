@@ -165,42 +165,8 @@
   when: ansible_connection == 'docker'
   get_url:
     url: https://github.com/Yelp/dumb-init/releases/download/v1.2.0/dumb-init_1.2.0_amd64
-    dest: '/usr/local/bin/dumb-init'
+    dest: '/usr/sbin/dumb-init'
     mode: 0755
-
-- name: Cleanup build tools
-  when: ansible_connection == 'docker'
-  yum: name={{ item }} state=absent
-  with_items:
-    - autoconf
-    - automake
-    - binutils-devel
-    - binutils-static
-    - bison
-    - boost-devel
-    - clang
-    - cmake
-    - elfutils-devel
-    - elfutils-libelf-devel
-    - file-devel
-    - gcc
-    - gcc-c++
-    - kernel-devel
-    - lcov
-    - libsemanage-python
-    - libstdc++-devel
-    - libstdc++-static
-    - libtool
-    - ncurses-devel
-    - openssl
-    - openssl-devel
-    - pcre-devel
-    - perl-CPAN
-    - policycoreutils-python
-    - rpm-build
-  tags:
-    - nginx
-    - naxsi
 
 - name: clean yum cache
   command: yum clean all
