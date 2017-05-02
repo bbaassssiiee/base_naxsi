@@ -9,6 +9,7 @@
     - restart nginx - after config check
 
 - name: reload nginx
+  when: ansible_connection != 'docker'
   debug: msg="checking config first"
   changed_when: True
   notify:
@@ -17,6 +18,7 @@
     - reload nginx - after config check
 
 - name: check nginx configuration
+  when: ansible_connection != 'docker'
   command: "nginx -t"
   register: result
   changed_when: "result.rc != 0"
