@@ -84,7 +84,6 @@
 - name: install the custom nginx rpm
   command: rpm -v -U --force /root/rpmbuild/RPMS/x86_64/nginx-{{ nginx_main_version }}-{{ nginx_replace }}.el7.ngx.x86_64.rpm
   when: nginx_rpm.changed
-  notify: restart nginx
   tags:
     - nginx
     - naxsi
@@ -106,7 +105,6 @@
 - name: install workaround override.conf for nginx bug 1581864
   template: src=override.conf dest=/etc/systemd/system/nginx.service.d/override.conf
   register: nginx_override
-  notify: restart nginx
   tags:
     - nginx
     - naxsi
