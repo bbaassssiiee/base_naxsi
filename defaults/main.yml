@@ -23,3 +23,10 @@ nginx_access_log: /var/log/nginx/access.log  main;
 # nginx_access_log: "syslog:server={{ graylog_server }}:12301 graylog2_format;"
 
 naxsi_learning_mode: true
+
+client_max_body_size: 5
+# number of megabytes
+upload_max_filesize: 2
+# number of megabytes
+client_body_timeout: 5m
+client_header_timeout: 30s
