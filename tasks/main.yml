@@ -268,7 +268,7 @@
     - nginx
     - naxsi
 
-- name: fix permissions on pid filet
+- name: fix permissions on pid file
   when: ansible_selinux.status == "enabled"
   file:
     dest: "{{ item }}"
@@ -286,6 +286,7 @@
   file:
     dest: "{{ nginx.docroot }}"
     owner: nginx
+    state: directory
     mode: 0777
     recurse: yes
   tags:
