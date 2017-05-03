@@ -253,7 +253,7 @@
     - nginx
     - naxsi
 
-- name: fix permissions in docroot
+- name: fix permissions
   when: ansible_selinux.status == "enabled"
   file:
     dest: "{{ item }}"
@@ -262,6 +262,7 @@
     recurse: yes
   with_items:
     - "{{ nginx.docroot }}"
+    - "/var/lib/nginx"
     - "/var/log/nginx/client_temp"
   tags:
     - nginx
@@ -301,6 +302,7 @@
   with_items:
     - "{{ nginx.docroot }}"
     - "/var/log/nginx"
+    - "/var/lib/nginx"
   tags:
     - nginx
     - naxsi
