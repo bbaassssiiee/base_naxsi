@@ -286,8 +286,8 @@
   file:
     dest: "{{ nginx.docroot }}"
     owner: nginx
-    state: directory
     mode: 0777
+    state: directory
     recurse: yes
   tags:
     - nginx
@@ -299,6 +299,7 @@
     dest: "{{ item }}"
     owner: nginx
     mode: 0777
+    state: directory
     recurse: yes
   with_items:
     - "{{ nginx.docroot }}"
