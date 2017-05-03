@@ -411,8 +411,9 @@
     - naxsi
 
 - name: Ensure Nginx is started
-  service: name=nginx state=started
   when: ansible_connection != 'docker'
+  remote_user: root
+  service: name=nginx state=started
   tags:
     - nginx
     - naxsi
