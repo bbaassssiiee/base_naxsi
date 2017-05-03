@@ -394,7 +394,7 @@
     - naxsi
 
 - name: Grant web access for varnish
-  firewalld: rich_rule='rule family="ipv4" source address="{{ client_subnet }}" port port="80" protocol="tcp" accept' permanent=true state=enabled immediate=yes
+  firewalld: rich_rule='rule family="ipv4" source address="{{ client_subnet }}" port port="{{ nginx.port }}" protocol="tcp" accept' permanent=true state=enabled immediate=yes
   when: ansible_connection != 'docker' and client_subnet is defined
   tags:
     - firewall
@@ -419,7 +419,7 @@
     - naxsi
 
 - name: Test Nginx listening socket
-  wait_for: host=localhost port={{ nginx.port }} timeout=5
+  wait_for: host=localhost port={{ nginx.port }} timeout=30
   ignore_errors: "{{ continue_on_error | default(True) }}"
   when: ansible_connection != 'docker'
   tags:

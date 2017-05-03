@@ -14,7 +14,8 @@ nginx:
     docroot: /var/www/html
     appname: app.php
     servername: localhost
-    port: 8000
+    port: 8008
+    # port 8008 is available in the default selinux.
 
 nginx_error_log: /var/log/nginx/error.log warn;
 nginx_access_log: /var/log/nginx/access.log  main;
