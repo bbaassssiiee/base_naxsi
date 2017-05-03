@@ -171,6 +171,7 @@
 - name: clean yum cache
   command: yum clean all
   tags:
+    - skip_ansible_lint
     - nginx
     - naxsi
 
@@ -240,15 +241,13 @@
   tags:
     - nginx
     - naxsi
-  tags:
-    - nginx
-    - naxsi
 
 - name: fix permissions in docroot
   when: ansible_selinux.status == "enabled"
   file:
     dest: "{{ nginx.docroot }}"
     owner: nginx
+    state: directory
     recurse: yes
   tags:
     - nginx
@@ -259,11 +258,11 @@
   file:
     dest: "{{ item }}"
     owner: nginx
+    state: directory
     recurse: yes
   with_items:
     - "{{ nginx.docroot }}"
-    - "/var/log/nginx"
-    - "/var/log/nginx"
+    - "/var/log/nginx/client_temp"
   tags:
     - nginx
     - naxsi
