@@ -320,6 +320,25 @@
     - nginx
     - naxsi
 
+- name: Create tmp directories with correct permissions
+  when: ansible_connection == 'docker'
+  file:
+    path: "/var/lib/nginx/{{ item }}"
+    state: directory
+    owner: nginx
+    group: root
+    mode: 0775
+  with_items:
+    - tmp
+    - tmp/client_body
+    - tmp/fastcgi
+    - tmp/proxy
+    - tmp/scgi
+    - tmp/uwsgi
+  tags:
+    - nginx
+    - naxsi
+
 - name: fix permissions on pid file
   when: ansible_connection == 'docker'
   file:
