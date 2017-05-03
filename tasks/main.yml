@@ -263,7 +263,7 @@
   with_items:
     - "{{ nginx.docroot }}"
     - "/var/log/nginx"
-    - "/var/cache/nginx"
+    - "/var/log/nginx"
   tags:
     - nginx
     - naxsi
@@ -280,6 +280,56 @@
     - nginx
     - naxsi
 
+##
+- name: fix permissions in docroot
+  when: ansible_connection == 'docker'
+  file:
+    dest: "{{ nginx.docroot }}"
+    owner: nginx
+    mode: 0777
+    recurse: yes
+  tags:
+    - nginx
+    - naxsi
+
+- name: fix permissions in docroot
+  when: ansible_connection == 'docker'
+  file:
+    dest: "{{ item }}"
+    owner: nginx
+    mode: 0777
+    recurse: yes
+  with_items:
+    - "{{ nginx.docroot }}"
+    - "/var/log/nginx"
+  tags:
+    - nginx
+    - naxsi
+
+- name: fix permissions in docroot
+  when: ansible_connection == 'docker'
+  file:
+    dest: '/var/cache/nginx/client_temp'
+    owner: nginx
+    state: directory
+    mode: 0777
+  tags:
+    - nginx
+    - naxsi
+
+- name: fix permissions on pid file
+  when: ansible_connection == 'docker'
+  file:
+    dest: "{{ item }}"
+    owner: nginx
+    mode: 0666
+    state: touch
+  with_items:
+    - "/var/run/nginx.pid"
+  tags:
+    - nginx
+    - naxsi
+##
 - name: persist selinux for files
   command: "restorecon -R {{ nginx.docroot }}"
   changed_when: yes
