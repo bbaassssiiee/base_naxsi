@@ -208,21 +208,11 @@
     - nginx
     - naxsi
 
-- name: Link log files to stdout
+- name: Remove logfiles
   when: ansible_connection == 'docker'
   file:
     path: "/var/log/nginx/{{ item }}"
     state: absent
-  with_items:
-  - access.log
-  - error.log
-  tags:
-    - nginx
-    - naxsi
-
-- name: Link log files to stdout
-  when: ansible_connection == 'docker'
-  command: "ln -sf /dev/stdout /var/log/nginx/{{ item }}"
   with_items:
   - access.log
   - error.log
