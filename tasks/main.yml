@@ -312,10 +312,16 @@
 - name: fix permissions in docroot
   when: ansible_connection == 'docker'
   file:
-    dest: '/var/cache/nginx/client_temp'
+    dest: '/var/cache/nginx/{{ item }}'
     owner: nginx
     state: directory
     mode: 0777
+  with_items:
+    - client_temp
+    - fastcgi_temp
+    - proxy_temp
+    - scgi_temp
+    - uwsgi_temp
   tags:
     - nginx
     - naxsi
