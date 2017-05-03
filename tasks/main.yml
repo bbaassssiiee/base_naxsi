@@ -263,6 +263,7 @@
   with_items:
     - "{{ nginx.docroot }}"
     - "/var/log/nginx"
+    - "/var/cache/nginx"
   tags:
     - nginx
     - naxsi
