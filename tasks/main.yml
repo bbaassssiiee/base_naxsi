@@ -124,6 +124,16 @@
     - naxsi
     - skip_ansible_lint
 
+- name: Link log files to stdout
+  when: ansible_connection == 'docker'
+  command: "ln -sf /dev/stdout /var/log/nginx/{{ item }}"
+  with_items:
+  - access.log
+  - error.log
+  tags:
+    - nginx
+    - naxsi
+
 - name: Configure nginx
   template: src={{ item }} dest=/etc/nginx/{{ item }} owner=root group=root mode=0644
   with_items:
