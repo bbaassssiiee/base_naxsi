@@ -165,7 +165,7 @@
   when: ansible_connection == 'docker'
   get_url:
     url: https://github.com/Yelp/dumb-init/releases/download/v1.2.0/dumb-init_1.2.0_amd64
-    dest: '/usr/sbin/dumb-init'
+    dest: '/usr/local/bin/dumb-init'
     mode: 0755
 
 - name: clean yum cache
