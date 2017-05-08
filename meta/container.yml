@@ -3,7 +3,7 @@ nginx:
   user: "nginx"
   ports:
     - "8008:8008"
-  command: ['/usr/sbin/dumb-init', '/usr/sbin/nginx', '-c', '/etc/nginx/nginx.conf', "-g", "daemon off;"]
+  command: ['/usr/local/bin/dumb-init', '/usr/sbin/nginx', '-c', '/etc/nginx/nginx.conf', "-g", "daemon off;"]
   dev_overrides:
     ports: []
     command: 'bin/false'
