@@ -1,5 +1,6 @@
-# test file
 ---
+# test file
+
 - hosts: localhost
   connection: local
   become: true

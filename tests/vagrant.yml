@@ -1,5 +1,6 @@
-# test file
 ---
+# test file
+
 - hosts: all
   remote_user: vagrant
   become: true

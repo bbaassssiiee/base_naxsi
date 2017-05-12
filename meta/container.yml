@@ -1,3 +1,5 @@
+---
+
 nginx:
   image:  centos:7
   user: "nginx"
