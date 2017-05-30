@@ -27,6 +27,16 @@
     - nginx
     - naxsi
 
+- name: create sudoers.d file
+  template:
+    src: naxsi.sudoers
+    dest: /etc/sudoers.d/naxsi.sudoers
+    owner: root
+    group: root
+    mode: "0440"
+  tags:
+    - sudo
+
 - name: Reload ansible_facts after installing libselinux-python
   setup:
 
